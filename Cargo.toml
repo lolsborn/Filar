@@ -1,0 +1,21 @@
+[workspace]
+resolver = "3"
+members = ["crates/filar-core", "crates/filar-cli", "crates/filar-wasm", "app/src-tauri"]
+default-members = ["crates/filar-core", "crates/filar-cli"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "GPL-3.0-only"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+filar-core = { path = "crates/filar-core" }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+
+[profile.dev.package.filar-core]
+opt-level = 2

@@ -1,0 +1,18 @@
+[package]
+name = "filar-desktop"
+description = "Filar desktop application"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "filar_desktop"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+filar-core.workspace = true
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"

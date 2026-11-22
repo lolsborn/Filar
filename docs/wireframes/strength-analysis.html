@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Filar · Strength analysis wireframes</title>
+<style>
+  :root {
+    --ink: #1c1e21; --ink2: #50555c; --ink3: #868c94; --line: #a9afb7; --soft: #d9dce0;
+    --fill: #f3f4f5; --fill2: #e7e9eb; --paper: #ffffff; --page: #eceef0; --pin: #2a5bd7;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 36px; background: var(--page); color: var(--ink);
+    font: 12px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .intro { color: var(--ink2); max-width: 900px; margin: 0 0 28px; font-size: 13px; }
+  .sheet { width: 1640px; margin: 0 0 44px; padding: 22px 24px 26px; background: var(--paper);
+    border: 1px solid var(--soft); border-radius: 10px; }
+  .sheet h2 { margin: 0; font-size: 16px; }
+  .sheet .sub { margin: 3px 0 16px; color: var(--ink2); font-size: 13px; }
+  .row { display: flex; gap: 22px; align-items: flex-start; }
+  .notes { width: 290px; margin: 0; padding: 0; list-style: none; counter-reset: n; flex: none; }
+  .notes li { position: relative; padding: 0 0 12px 30px; color: var(--ink2); font-size: 12.5px; counter-increment: n; }
+  .notes li::before { content: counter(n); position: absolute; left: 0; top: 0; width: 20px; height: 20px;
+    border-radius: 50%; background: var(--pin); color: #fff; font-weight: 700; font-size: 11px;
+    display: flex; align-items: center; justify-content: center; }
+  .notes li b { color: var(--ink); }
+  .notes .q { margin-top: 6px; padding: 10px 12px; border: 1.5px dashed var(--pin); border-radius: 8px; color: var(--ink); list-style: none; }
+  .notes .q::before { display: none; }
+  .notes .q { padding-left: 12px; counter-increment: none; }
+
+  /* The app frame */
+  .frame { position: relative; width: 1280px; height: 800px; flex: none; background: var(--fill);
+    border: 1.5px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .pin { position: absolute; z-index: 9; width: 20px; height: 20px; border-radius: 50%; background: var(--pin);
+    color: #fff; font-weight: 700; font-size: 11px; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 3px #fff; }
+  .panel { position: absolute; background: var(--paper); border: 1.5px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .top { left: 10px; right: 10px; top: 10px; height: 40px; display: flex; align-items: center; gap: 12px; padding: 0 10px; }
+  .logo { font-weight: 700; font-size: 13px; }
+  .grow { flex: 1; }
+  .tabs { display: flex; border: 1.5px solid var(--line); border-radius: 7px; overflow: hidden; }
+  .tabs span { padding: 4px 12px; border-right: 1px solid var(--soft); color: var(--ink2); white-space: nowrap; }
+  .tabs span:last-child { border-right: 0; }
+  .tabs .on { background: var(--ink); color: #fff; font-weight: 600; }
+  .tabs.fill { display: flex; } .tabs.fill span { flex: 1; text-align: center; padding: 4px 4px; }
+  .center { position: absolute; left: 50%; transform: translateX(-50%); }
+  .btn { border: 1.5px solid var(--line); border-radius: 7px; padding: 4px 10px; background: var(--paper); white-space: nowrap; display: inline-block; }
+  .btn.pri { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 600; }
+  .left { left: 10px; top: 60px; bottom: 10px; width: 270px; }
+  .right { right: 10px; top: 60px; bottom: 10px; width: 300px; }
+  .dock { left: 290px; right: 320px; bottom: 10px; height: 178px; padding: 10px 12px; }
+  .sec { padding: 10px 12px 12px; border-bottom: 1px solid var(--soft); }
+  .sec:last-child { border-bottom: 0; }
+  .eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--ink3); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 7px 8px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .f label { display: block; font-size: 10px; color: var(--ink3); margin-bottom: 2px; }
+  .inp { height: 24px; border-radius: 6px; background: var(--fill); border: 1px solid var(--soft); padding: 0 7px;
+    display: flex; align-items: center; justify-content: space-between; font-variant-numeric: tabular-nums; }
+  .inp i { font-style: normal; color: var(--ink3); font-size: 10px; }
+  .span2 { grid-column: span 2; }
+  .tag { display: inline-block; font-size: 9.5px; font-weight: 600; padding: 1px 6px; border-radius: 9px; border: 1px solid var(--line); color: var(--ink2); background: var(--fill); }
+  .tag.dark { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .muted { color: var(--ink3); } .small { font-size: 10.5px; }
+  .check { display: flex; gap: 7px; align-items: center; margin-top: 8px; color: var(--ink2); }
+  .tog { width: 24px; height: 14px; border-radius: 7px; background: var(--ink); position: relative; flex: none; }
+  .tog::after { content: ""; position: absolute; right: 2px; top: 2px; width: 10px; height: 10px; border-radius: 50%; background: #fff; }
+  .case { display: flex; align-items: center; gap: 7px; padding: 5px 7px; border: 1px solid var(--soft); border-radius: 6px; margin-bottom: 5px; }
+  .case.on { border: 1.5px solid var(--ink); background: var(--fill); }
+  .dot { width: 9px; height: 3px; border-radius: 2px; background: var(--ink); flex: none; }
+  .dot.dash { background: repeating-linear-gradient(90deg, var(--ink) 0 3px, transparent 3px 5px); }
+  .stat .k { font-size: 10px; color: var(--ink3); }
+  .stat .v { font-size: 16px; font-weight: 650; letter-spacing: -.01em; }
+  .stat .v small { font-size: 10px; font-weight: 400; color: var(--ink3); }
+  .kv { display: flex; justify-content: space-between; padding: 2.5px 0; }
+  .kv span:first-child { color: var(--ink2); }
+  .kv span:last-child { font-variant-numeric: tabular-nums; }
+  .banner { margin: 10px 12px 0; padding: 7px 9px; border: 1px dashed var(--line); border-radius: 7px; color: var(--ink2); font-size: 10.5px; background: var(--fill); }
+  .verdict { display: flex; gap: 12px; align-items: center; }
+  .verdict .big { font-size: 34px; font-weight: 700; letter-spacing: -.02em; line-height: 1; }
+  .ok { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
+  .ok::before { content: "✓"; display: inline-flex; width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--ink); align-items: center; justify-content: center; font-size: 9px; }
+  .view { position: absolute; left: 290px; right: 320px; top: 60px; bottom: 198px; }
+  .view svg { width: 100%; height: 100%; display: block; }
+  .tools { position: absolute; left: 300px; bottom: 198px; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th { text-align: right; font-size: 9.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink3); font-weight: 700; padding: 5px 6px; border-bottom: 1.5px solid var(--line); }
+  td { text-align: right; padding: 5px 6px; border-bottom: 1px solid var(--soft); white-space: nowrap; }
+  td.grp { text-align: left; font-size: 9.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--ink3); padding-top: 14px; border-bottom: 1.5px solid var(--line); }
+  th:first-child, td:first-child { text-align: left; }
+  tr.crit td { background: var(--fill2); font-weight: 600; }
+  .bar { height: 8px; background: var(--ink2); border-radius: 0 3px 3px 0; }
+  .best { font-weight: 700; } .best::after { content: " ▲"; font-size: 8px; }
+  .scrim { position: absolute; inset: 0; background: rgba(28,30,33,.38); z-index: 5; }
+  .modal { z-index: 6; left: 150px; right: 150px; top: 70px; bottom: 54px; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+  .ghost { opacity: .45; }
+</style>
+</head>
+<body>
+<h1>Filar · Strength analysis wireframes</h1>
+<p class="intro">Low-fidelity layouts for a proposed <b>Analyse</b> workspace. They show structure and content only; the real screens would use the existing Filar look. All figures are placeholders, not results. Blue numbers refer to the notes beside each frame.</p>
+
+<!-- ================================================================ 1 -->
+<section class="sheet" id="wf1">
+  <h2>1 · Analyse workspace</h2>
+  <p class="sub">A fourth workspace beside Design, Simulate and G-code. Same three-zone layout: inputs left, part in the middle, results right.</p>
+  <div class="row">
+    <div class="frame">
+      <div class="panel top">
+        <span class="logo">Filar</span><span class="muted">|</span><span>Taper airframe</span>
+        <div class="center"><div class="tabs"><span>Design</span><span class="on">Analyse</span><span>Simulate</span><span>G-code</span></div></div>
+        <span class="grow"></span><span class="btn">Save</span><span class="btn pri">Export G-code</span>
+      </div>
+      <span class="pin" style="left:560px;top:4px">1</span>
+
+      <div class="panel left">
+        <div class="sec">
+          <div class="eyebrow">Load cases <span class="btn" style="padding:1px 7px;font-size:10px;letter-spacing:0;text-transform:none;font-weight:400">+ Add</span></div>
+          <div class="case on"><span class="dot"></span><b>Burst pressure</b><span class="grow"></span><span class="muted small">20 bar</span></div>
+          <div class="case"><span class="dot dash"></span>Flight bending<span class="grow"></span><span class="muted small">180 N·m</span></div>
+          <div class="tabs fill" style="margin:9px 0 8px"><span class="on">Pressure</span><span>Airframe</span><span>Shaft</span><span>Custom</span></div>
+          <div class="grid2">
+            <div class="f"><label>Internal pressure</label><div class="inp">20 <i>bar</i></div></div>
+            <div class="f"><label>Axial force</label><div class="inp">0 <i>N</i></div></div>
+            <div class="f"><label>Bending moment</label><div class="inp">0 <i>N·m</i></div></div>
+            <div class="f"><label>Torque</label><div class="inp">0 <i>N·m</i></div></div>
+          </div>
+          <div class="check"><span class="tog"></span>Closed ends (pressure adds axial load)</div>
+        </div>
+        <div class="sec">
+          <div class="eyebrow">Ply properties <span class="tag">Textbook values</span></div>
+          <div class="f" style="margin-bottom:7px"><label>Material system</label><div class="inp">Carbon / epoxy, wet wound <i>▾</i></div></div>
+          <div class="grid2">
+            <div class="f"><label>E₁ along fibre</label><div class="inp">135 <i>GPa</i></div></div>
+            <div class="f"><label>E₂ across fibre</label><div class="inp">9 <i>GPa</i></div></div>
+            <div class="f"><label>G₁₂ shear</label><div class="inp">5 <i>GPa</i></div></div>
+            <div class="f"><label>ν₁₂</label><div class="inp">0.30</div></div>
+            <div class="f"><label>Fibre tension / comp.</label><div class="inp">1800 / 1200 <i>MPa</i></div></div>
+            <div class="f"><label>Matrix tension / comp.</label><div class="inp">40 / 180 <i>MPa</i></div></div>
+            <div class="f"><label>Shear strength</label><div class="inp">70 <i>MPa</i></div></div>
+            <div class="f"><label>&nbsp;</label><span class="btn" style="width:100%;text-align:center">Tested values…</span></div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="eyebrow">Method</div>
+          <div class="grid2">
+            <div class="f span2"><label>Failure criterion</label><div class="tabs fill"><span class="on">Tsai-Wu</span><span>Max stress</span></div></div>
+            <div class="f"><label>Required reserve factor</label><div class="inp">1.5</div></div>
+            <div class="f"><label>Winding knock-down</label><div class="inp">0.75</div></div>
+          </div>
+        </div>
+      </div>
+      <span class="pin" style="left:268px;top:92px">2</span>
+      <span class="pin" style="left:268px;top:330px">3</span>
+      <span class="pin" style="left:268px;top:622px">4</span>
+
+      <div class="view">
+        <svg viewBox="0 0 670 542" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#8f959d"/><line x1="0" y1="0" x2="0" y2="6" stroke="#1c1e21" stroke-width="2.4"/></pattern>
+            <clipPath id="tube"><polygon points="90,170 580,205 580,265 90,300"/></clipPath>
+          </defs>
+          <g clip-path="url(#tube)">
+            <rect x="90" y="150" width="90" height="170" fill="#e3e5e8"/>
+            <rect x="180" y="150" width="100" height="170" fill="#cfd2d6"/>
+            <rect x="280" y="150" width="90" height="170" fill="#b9bdc3"/>
+            <rect x="370" y="150" width="70" height="170" fill="#a3a8af"/>
+            <rect x="440" y="150" width="62" height="170" fill="url(#hatch)"/>
+            <rect x="502" y="150" width="78" height="170" fill="#b9bdc3"/>
+          </g>
+          <polygon points="90,170 580,205 580,265 90,300" fill="none" stroke="#50555c" stroke-width="1.5"/>
+          <ellipse cx="90" cy="235" rx="14" ry="65" fill="#f3f4f5" stroke="#50555c" stroke-width="1.5"/>
+          <line x1="471" y1="150" x2="471" y2="196" stroke="#1c1e21" stroke-width="1.5"/>
+          <rect x="398" y="118" width="146" height="34" rx="6" fill="#fff" stroke="#1c1e21" stroke-width="1.5"/>
+          <text x="408" y="132" font-size="10" fill="#50555c">Lowest reserve factor</text>
+          <text x="408" y="146" font-size="12" font-weight="700" fill="#1c1e21">1.8 at 412 mm</text>
+          <text x="335" y="80" text-anchor="middle" font-size="11" fill="#868c94">3D part, shaded by reserve factor (orbit / zoom as in Design)</text>
+          <g transform="translate(205,372)">
+            <text x="0" y="-8" font-size="10" fill="#50555c">Reserve factor</text>
+            <rect x="0" y="0" width="52" height="12" fill="url(#hatch)"/><rect x="52" y="0" width="52" height="12" fill="#a3a8af"/><rect x="104" y="0" width="52" height="12" fill="#b9bdc3"/><rect x="156" y="0" width="52" height="12" fill="#cfd2d6"/><rect x="208" y="0" width="52" height="12" fill="#e3e5e8"/>
+            <rect x="0" y="0" width="260" height="12" fill="none" stroke="#50555c"/>
+            <g font-size="9.500" fill="#50555c" text-anchor="middle"><text x="0" y="25">1.0</text><text x="52" y="25">1.5</text><text x="104" y="25">2.0</text><text x="156" y="25">2.5</text><text x="208" y="25">3.0</text><text x="260" y="25">3.5+</text></g>
+          </g>
+        </svg>
+      </div>
+      <div class="tools"><div class="tabs" style="background:#fff"><span class="on">Reserve factor</span><span>Stress</span><span>Fibre</span></div></div>
+      <span class="pin" style="left:668px;top:176px">5</span>
+
+      <div class="panel dock">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <span><b>Reserve factor along the mandrel</b> <span class="muted">· lowest ply at each station</span></span>
+          <span class="small" style="display:flex;gap:12px;align-items:center"><span style="display:flex;gap:5px;align-items:center"><span class="dot"></span>Burst pressure</span><span style="display:flex;gap:5px;align-items:center"><span class="dot dash"></span>Flight bending</span></span>
+        </div>
+        <svg viewBox="0 0 640 132" style="width:100%;height:136px;display:block">
+          <rect x="96" y="8" width="470" height="100" fill="#e7e9eb" opacity=".6"/><text x="331" y="20" text-anchor="middle" font-size="9.500" fill="#868c94">part</text>
+          <g stroke="#d9dce0" stroke-width="1"><line x1="34" y1="33" x2="628" y2="33"/><line x1="34" y1="58" x2="628" y2="58"/><line x1="34" y1="83" x2="628" y2="83"/></g>
+          <line x1="34" y1="108" x2="628" y2="108" stroke="#868c94"/>
+          <g font-size="9.500" fill="#868c94" text-anchor="end"><text x="28" y="111">0</text><text x="28" y="86">1</text><text x="28" y="61">2</text><text x="28" y="36">3</text></g>
+          <g font-size="9.500" fill="#868c94" text-anchor="middle"><text x="96" y="124">80</text><text x="253" y="124">250</text><text x="410" y="124">420</text><text x="566" y="124">580</text><text x="622" y="124">mm</text></g>
+          <line x1="34" y1="70.500" x2="628" y2="70.500" stroke="#1c1e21" stroke-width="1"/><text x="38" y="67" font-size="9.500" fill="#1c1e21">required 1.5</text>
+          <path d="M96 30 C 200 34, 300 44, 380 56 S 440 64, 452 63 S 520 50, 566 40" fill="none" stroke="#1c1e21" stroke-width="2"/>
+          <path d="M96 52 C 180 46, 300 36, 420 30 S 520 26, 566 24" fill="none" stroke="#1c1e21" stroke-width="2" stroke-dasharray="5 4"/>
+          <circle cx="452" cy="63" r="4.500" fill="#1c1e21" stroke="#fff" stroke-width="2"/><text x="460" y="56" font-size="10" font-weight="700" fill="#1c1e21">1.8</text>
+          <line x1="452" y1="8" x2="452" y2="108" stroke="#868c94" stroke-width="1"/>
+        </svg>
+      </div>
+      <span class="pin" style="left:280px;top:660px">6</span>
+
+      <div class="panel right">
+        <div class="banner">Estimate for comparing layups. Not a substitute for testing.</div>
+        <div class="sec">
+          <div class="eyebrow">Result · Burst pressure</div>
+          <div class="verdict"><span class="big">1.8</span><span><span class="ok">Meets required 1.5</span><br><span class="muted small">Lowest reserve factor</span></span></div>
+          <div style="margin-top:9px">
+            <div class="kv"><span>Where</span><span>412 mm from head</span></div>
+            <div class="kv"><span>Ply</span><span>3 of 4 · helical −50°</span></div>
+            <div class="kv"><span>How it fails first</span><span>Matrix cracking</span></div>
+          </div>
+          <span class="btn" style="margin-top:8px;width:100%;text-align:center">Ply detail at 412 mm ›</span>
+        </div>
+        <div class="sec">
+          <div class="eyebrow">Capacity of this layup</div>
+          <div class="kv"><span>First-ply failure pressure</span><span>36 bar</span></div>
+          <div class="kv"><span>Fibre burst (netting)</span><span>58 bar</span></div>
+          <div class="kv"><span>Bending at first failure</span><span>410 N·m</span></div>
+          <div class="kv"><span>Torque at first failure</span><span>260 N·m</span></div>
+          <div class="kv"><span>Column buckling, pinned</span><span>12 kN</span></div>
+        </div>
+        <div class="sec">
+          <div class="eyebrow">Stiffness <span class="muted" style="font-weight:400;letter-spacing:0;text-transform:none">mid-part</span></div>
+          <div class="grid3">
+            <div class="stat"><div class="k">Axial E<sub>x</sub></div><div class="v">48 <small>GPa</small></div></div>
+            <div class="stat"><div class="k">Hoop E<sub>θ</sub></div><div class="v">62 <small>GPa</small></div></div>
+            <div class="stat"><div class="k">Shear G</div><div class="v">14 <small>GPa</small></div></div>
+          </div>
+          <div style="margin-top:8px">
+            <div class="kv"><span>Bending stiffness EI</span><span>1 240 N·m²</span></div>
+            <div class="kv"><span>Torsional stiffness GJ</span><span>690 N·m²</span></div>
+            <div class="kv"><span>Axial stiffness EA</span><span>6.1 MN</span></div>
+          </div>
+        </div>
+        <div class="sec"><span class="btn" style="width:100%;text-align:center">Compare layups…</span></div>
+      </div>
+      <span class="pin" style="left:950px;top:112px">7</span>
+      <span class="pin" style="left:950px;top:322px">8</span>
+      <span class="pin" style="left:950px;top:472px">9</span>
+    </div>
+
+    <ol class="notes">
+      <li><b>New Analyse tab.</b> Reads the layup already defined in Design. Nothing here changes the winding program.</li>
+      <li><b>Load cases.</b> Saved, named cases. Presets fill the four basic loads: pressure, airframe (bending plus compression), shaft (torque), or custom. Any combination can be entered.</li>
+      <li><b>Ply properties.</b> Start from a textbook set, clearly tagged. "Tested values…" opens the editor in frame 4.</li>
+      <li><b>Method.</b> Failure criterion, the reserve factor you require, and a knock-down for wound laminates (crossovers, voids).</li>
+      <li><b>Part shaded by reserve factor.</b> Weakest region hatched as well as shaded, and labelled, so it does not rely on colour alone. Toggle to stress or plain fibre view.</li>
+      <li><b>Along-the-mandrel chart.</b> Matches the existing wall build-up chart. One line per load case, the required level drawn across, lowest point marked. Click a station to open frame 2.</li>
+      <li><b>Verdict.</b> One number, a plain pass or fail against the requirement, and where, which ply and how it fails first.</li>
+      <li><b>Capacity.</b> The load each basic case could reach before first failure, so you see headroom without entering more cases.</li>
+      <li><b>Stiffness.</b> Wall moduli and tube stiffness. Useful on its own for airframes and shafts.</li>
+      <li class="q"><b>To decide:</b> also show a small "reserve factor" tile in the Design summary, so layup edits show their effect without switching tabs?</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================================================================ 2 -->
+<section class="sheet" id="wf2">
+  <h2>2 · Ply detail at a station</h2>
+  <p class="sub">Opened from the verdict or by clicking the chart. The right panel widens, as it does for G-code, to show what each ply is carrying at one position.</p>
+  <div class="row">
+    <div class="frame">
+      <div class="panel top">
+        <span class="logo">Filar</span><span class="muted">|</span><span>Taper airframe</span>
+        <div class="center"><div class="tabs"><span>Design</span><span class="on">Analyse</span><span>Simulate</span><span>G-code</span></div></div>
+        <span class="grow"></span><span class="btn">Save</span><span class="btn pri">Export G-code</span>
+      </div>
+      <div class="panel left ghost"><div class="sec"><div class="eyebrow">Load cases</div><div class="case on"><span class="dot"></span><b>Burst pressure</b></div><div class="case"><span class="dot dash"></span>Flight bending</div></div><div class="sec"><div class="eyebrow">Ply properties</div><div class="inp">Carbon / epoxy, wet wound</div></div><div class="sec"><div class="eyebrow">Method</div><div class="inp">Tsai-Wu · required 1.5</div></div></div>
+
+      <div class="view" style="right:500px">
+        <svg viewBox="0 0 490 542" preserveAspectRatio="xMidYMid meet">
+          <polygon points="50,190 440,218 440,268 50,296" fill="#dfe2e5" stroke="#50555c" stroke-width="1.5"/>
+          <ellipse cx="50" cy="243" rx="11" ry="53" fill="#f3f4f5" stroke="#50555c" stroke-width="1.5"/>
+          <ellipse cx="352" cy="243" rx="9" ry="33" fill="none" stroke="#1c1e21" stroke-width="2.5"/>
+          <line x1="352" y1="160" x2="352" y2="208" stroke="#1c1e21" stroke-width="1.5"/>
+          <rect x="300" y="136" width="104" height="24" rx="6" fill="#fff" stroke="#1c1e21" stroke-width="1.5"/>
+          <text x="352" y="152" text-anchor="middle" font-size="11" font-weight="700">Station 412 mm</text>
+          <text x="245" y="96" text-anchor="middle" font-size="11" fill="#868c94">Selected station ringed on the part</text>
+        </svg>
+      </div>
+      <div class="panel dock" style="right:500px">
+        <div><b>Reserve factor along the mandrel</b></div>
+        <svg viewBox="0 0 460 132" style="width:100%;height:136px;display:block">
+          <line x1="30" y1="108" x2="450" y2="108" stroke="#868c94"/><line x1="30" y1="70.500" x2="450" y2="70.500" stroke="#1c1e21"/>
+          <path d="M70 30 C 150 34, 230 46, 290 57 S 330 64, 338 63 S 380 50, 410 40" fill="none" stroke="#1c1e21" stroke-width="2"/>
+          <line x1="338" y1="8" x2="338" y2="108" stroke="#1c1e21" stroke-width="1.5"/><circle cx="338" cy="63" r="4.500" fill="#1c1e21" stroke="#fff" stroke-width="2"/>
+          <rect x="316" y="110" width="44" height="16" rx="4" fill="#1c1e21"/><text x="338" y="121.500" text-anchor="middle" font-size="9.500" fill="#fff">412 mm</text>
+          <text x="34" y="67" font-size="9.500">required 1.5</text>
+        </svg>
+      </div>
+      <span class="pin" style="left:280px;top:660px">1</span>
+
+      <div class="panel right" style="width:480px">
+        <div class="sec" style="display:flex;align-items:center;gap:10px">
+          <span class="btn">‹ Results</span><b style="font-size:13px">Station 412 mm</b><span class="grow"></span>
+          <div class="tabs"><span class="on">Burst pressure</span><span>Flight bending</span></div>
+        </div>
+        <div class="sec">
+          <div class="grid3" style="grid-template-columns:repeat(4,1fr)">
+            <div class="stat"><div class="k">Wall</div><div class="v">0.92 <small>mm</small></div></div>
+            <div class="stat"><div class="k">Outside dia.</div><div class="v">51.8 <small>mm</small></div></div>
+            <div class="stat"><div class="k">Hoop stress</div><div class="v">55 <small>MPa</small></div></div>
+            <div class="stat"><div class="k">Axial stress</div><div class="v">27 <small>MPa</small></div></div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="eyebrow">Through the wall <span class="muted" style="font-weight:400;letter-spacing:0;text-transform:none">outside at top</span></div>
+          <svg viewBox="0 0 456 150" style="width:100%;display:block">
+            <g font-size="10" fill="#50555c">
+              <rect x="0" y="6" width="120" height="26" fill="#e7e9eb" stroke="#868c94"/><text x="60" y="23" text-anchor="middle">4 · hoop 89°</text>
+              <rect x="0" y="32" width="120" height="34" fill="#cfd2d6" stroke="#868c94"/><text x="60" y="53" text-anchor="middle" font-weight="700" fill="#1c1e21">3 · helical −50°</text>
+              <rect x="0" y="66" width="120" height="34" fill="#dfe2e5" stroke="#868c94"/><text x="60" y="87" text-anchor="middle">2 · helical +50°</text>
+              <rect x="0" y="100" width="120" height="26" fill="#e7e9eb" stroke="#868c94"/><text x="60" y="117" text-anchor="middle">1 · hoop 89°</text>
+              <text x="60" y="142" text-anchor="middle" fill="#868c94">mandrel side</text>
+            </g>
+            <text x="150" y="2" font-size="9.500" fill="#868c94" dominant-baseline="hanging">Reserve factor</text>
+            <line x1="150" y1="6" x2="150" y2="126" stroke="#868c94"/>
+            <line x1="270" y1="6" x2="270" y2="126" stroke="#1c1e21"/><text x="273" y="138" font-size="9.500">required 1.5</text>
+            <rect x="150" y="12" width="250" height="14" fill="#868c94" rx="2"/><text x="406" y="23" font-size="10">3.1</text>
+            <rect x="150" y="42" width="144" height="14" fill="#1c1e21" rx="2"/><text x="300" y="53" font-size="10" font-weight="700">1.8  lowest</text>
+            <rect x="150" y="76" width="152" height="14" fill="#868c94" rx="2"/><text x="308" y="87" font-size="10">1.9</text>
+            <rect x="150" y="106" width="250" height="14" fill="#868c94" rx="2"/><text x="406" y="117" font-size="10">3.1</text>
+          </svg>
+        </div>
+        <div class="sec">
+          <div class="eyebrow">Ply stresses <span class="muted" style="font-weight:400;letter-spacing:0;text-transform:none">MPa, in each ply's own fibre direction</span></div>
+          <table>
+            <tr><th>Ply</th><th>Angle</th><th>Thick</th><th>Along fibre</th><th>Across</th><th>Shear</th><th>RF</th><th>Fails by</th></tr>
+            <tr><td>4 · Hoop</td><td>89°</td><td>0.20</td><td>610</td><td>4</td><td>1</td><td>3.1</td><td>Fibre tension</td></tr>
+            <tr class="crit"><td>3 · Helical</td><td>−50°</td><td>0.26</td><td>340</td><td>19</td><td>−22</td><td>1.8</td><td>Matrix cracking</td></tr>
+            <tr><td>2 · Helical</td><td>+50°</td><td>0.26</td><td>340</td><td>18</td><td>22</td><td>1.9</td><td>Matrix cracking</td></tr>
+            <tr><td>1 · Hoop</td><td>89°</td><td>0.20</td><td>610</td><td>4</td><td>1</td><td>3.1</td><td>Fibre tension</td></tr>
+          </table>
+        </div>
+        <div class="sec small muted">Matrix cracking is the first damage, not rupture. Fibre burst for this wall is estimated at 58 bar.</div>
+      </div>
+      <span class="pin" style="left:780px;top:262px">2</span>
+      <span class="pin" style="left:780px;top:452px">3</span>
+      <span class="pin" style="left:780px;top:596px">4</span>
+    </div>
+    <ol class="notes">
+      <li><b>Station follows the chart.</b> Drag along the chart or click the part to move the station; the panel updates live.</li>
+      <li><b>Through-the-wall view.</b> The wall drawn as its stack of plies with a reserve-factor bar beside each one. The weakest ply is the darkest and is labelled.</li>
+      <li><b>Ply stress table.</b> Stress along the fibre, across it and in shear, with the reserve factor and the way each ply would fail first.</li>
+      <li><b>Plain-language caveat.</b> States what the first failure means physically and how it relates to actual burst.</li>
+      <li class="q"><b>To decide:</b> is the ply table the right depth, or would most users only want the bar view with the table tucked behind "Details"?</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================================================================ 3 -->
+<section class="sheet" id="wf3">
+  <h2>3 · Compare layups</h2>
+  <p class="sub">The main job of the feature: put alternative layups side by side on strength, stiffness, mass and wind time.</p>
+  <div class="row">
+    <div class="frame">
+      <div class="panel top">
+        <span class="logo">Filar</span><span class="muted">|</span><span>Taper airframe</span>
+        <div class="center"><div class="tabs"><span>Design</span><span class="on">Analyse</span><span>Simulate</span><span>G-code</span></div></div>
+        <span class="grow"></span><span class="btn">Save</span><span class="btn pri">Export G-code</span>
+      </div>
+      <div class="panel left">
+        <div class="sec">
+          <div class="eyebrow">Variants <span class="btn" style="padding:1px 7px;font-size:10px;letter-spacing:0;text-transform:none;font-weight:400">+ Snapshot current</span></div>
+          <div class="case on"><span class="tag dark">Now</span><span><b>Current design</b><br><span class="muted small">hoop / ±50 / hoop</span></span></div>
+          <div class="case"><span class="tag">A</span><span>Extra hoop ply<br><span class="muted small">hoop / ±50 / hoop ×2</span></span></div>
+          <div class="case"><span class="tag">B</span><span>Lower helical angle<br><span class="muted small">hoop / ±30 / hoop</span></span></div>
+          <div class="case" style="border-style:dashed;color:var(--ink3)">Up to four variants side by side</div>
+        </div>
+        <div class="sec">
+          <div class="eyebrow">Compared under</div>
+          <div class="case on"><span class="dot"></span>Burst pressure<span class="grow"></span><span class="muted small">20 bar</span></div>
+          <div class="case on"><span class="dot dash"></span>Flight bending<span class="grow"></span><span class="muted small">180 N·m</span></div>
+          <div class="small muted" style="margin-top:6px">Same ply properties and method for every variant.</div>
+        </div>
+      </div>
+      <span class="pin" style="left:268px;top:92px">1</span>
+
+      <div class="panel" style="left:290px;right:10px;top:60px;bottom:10px">
+        <div class="sec" style="display:flex;align-items:center;gap:10px"><span class="btn">‹ Results</span><b style="font-size:13px">Compare layups</b><span class="grow"></span><span class="muted small">▲ marks the best in each row</span></div>
+        <div class="sec">
+          <table>
+            <tr><th style="width:26%">&nbsp;</th><th>Current design</th><th>A · Extra hoop ply</th><th>B · Lower helical angle</th></tr>
+            <tr><td>Layup, inside → out</td><td>90 / ±50 / 90</td><td>90 / ±50 / 90 / 90</td><td>90 / ±30 / 90</td></tr>
+            <tr><td>Wall thickness</td><td>0.92 mm</td><td>1.12 mm</td><td>0.84 mm</td></tr>
+            <tr><td>Part mass</td><td>108 g</td><td>131 g</td><td class="best">99 g</td></tr>
+            <tr><td>Wind time</td><td>12 min</td><td>16 min</td><td class="best">11 min</td></tr>
+            <tr><td colspan="4" class="grp">Lowest reserve factor</td></tr>
+            <tr><td>Burst pressure · 20 bar</td><td>1.8</td><td class="best">2.6</td><td>1.3 <span class="tag">below 1.5</span></td></tr>
+            <tr><td>Flight bending · 180 N·m</td><td>2.3</td><td>2.4</td><td class="best">3.4</td></tr>
+            <tr><td colspan="4" class="grp">Stiffness</td></tr>
+            <tr><td>Bending stiffness EI</td><td>1 240 N·m²</td><td>1 310 N·m²</td><td class="best">1 890 N·m²</td></tr>
+            <tr><td>Torsional stiffness GJ</td><td class="best">690 N·m²</td><td class="best">690 N·m²</td><td>520 N·m²</td></tr>
+            <tr><td>Reserve factor per gram</td><td>0.017</td><td class="best">0.020</td><td>0.013</td></tr>
+          </table>
+        </div>
+        <div class="sec">
+          <div class="eyebrow">Lowest reserve factor by load case</div>
+          <svg viewBox="0 0 940 150" style="width:100%;display:block">
+            <g font-size="10" fill="#50555c">
+              <text x="0" y="16" font-weight="700" fill="#1c1e21">Burst pressure</text>
+              <text x="118" y="38" text-anchor="end">Current</text><rect x="126" y="28" width="144" height="13" fill="#868c94" rx="2"/><text x="276" y="39">1.8</text>
+              <text x="118" y="60" text-anchor="end">A</text><rect x="126" y="50" width="208" height="13" fill="#1c1e21" rx="2"/><text x="340" y="61" font-weight="700">2.6</text>
+              <text x="118" y="82" text-anchor="end">B</text><rect x="126" y="72" width="104" height="13" fill="#868c94" rx="2"/><text x="252" y="83">1.3</text>
+              <line x1="126" y1="22" x2="126" y2="92" stroke="#868c94"/><line x1="246" y1="22" x2="246" y2="92" stroke="#1c1e21"/><text x="246" y="106" text-anchor="middle">required 1.5</text>
+              <text x="490" y="16" font-weight="700" fill="#1c1e21">Flight bending</text>
+              <text x="608" y="38" text-anchor="end">Current</text><rect x="616" y="28" width="184" height="13" fill="#868c94" rx="2"/><text x="806" y="39">2.3</text>
+              <text x="608" y="60" text-anchor="end">A</text><rect x="616" y="50" width="192" height="13" fill="#868c94" rx="2"/><text x="814" y="61">2.4</text>
+              <text x="608" y="82" text-anchor="end">B</text><rect x="616" y="72" width="272" height="13" fill="#1c1e21" rx="2"/><text x="894" y="83" font-weight="700">3.4</text>
+              <line x1="616" y1="22" x2="616" y2="92" stroke="#868c94"/><line x1="736" y1="22" x2="736" y2="92" stroke="#1c1e21"/><text x="736" y="106" text-anchor="middle">required 1.5</text>
+            </g>
+          </svg>
+        </div>
+        <div class="sec" style="display:flex;gap:8px;justify-content:flex-end;align-items:center">
+          <span class="muted small" style="margin-right:auto">Variants are saved with the project.</span>
+          <span class="btn">Open A in Design</span><span class="btn pri">Make A the design</span>
+        </div>
+      </div>
+      <span class="pin" style="left:280px;top:170px">2</span>
+      <span class="pin" style="left:280px;top:520px">3</span>
+      <span class="pin" style="left:968px;top:676px">4</span>
+    </div>
+    <ol class="notes">
+      <li><b>Variants.</b> "Snapshot current" freezes the layup you have now; then keep editing in Design and snapshot again. Each variant keeps its own full winding plan.</li>
+      <li><b>One table.</b> Strength sits next to what it costs: wall, mass and wind time. Best value per row is marked with a symbol, and anything under the requirement is tagged in words.</li>
+      <li><b>One small chart per load case.</b> Each has its own scale and the required level drawn across, so different loads are never forced onto one axis.</li>
+      <li><b>Act on it.</b> Promote a variant to be the design, or open it to keep refining.</li>
+      <li class="q"><b>To decide:</b> manual snapshots only (shown here), or also a "try angles from 20° to 70°" sweep that fills the table automatically?</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================================================================ 4 -->
+<section class="sheet" id="wf4">
+  <h2>4 · Tested values and results</h2>
+  <p class="sub">Where textbook numbers get replaced by your own. Recording a real test next to its prediction is what turns the estimate into something calibrated.</p>
+  <div class="row">
+    <div class="frame">
+      <div class="panel top ghost"><span class="logo">Filar</span><div class="center"><div class="tabs"><span>Design</span><span class="on">Analyse</span><span>Simulate</span><span>G-code</span></div></div></div>
+      <div class="panel left ghost"></div><div class="panel right ghost"></div>
+      <div class="scrim"></div>
+      <div class="panel modal">
+        <div class="sec" style="display:flex;align-items:center;gap:12px">
+          <b style="font-size:14px">Carbon / epoxy, wet wound</b><span class="tag">Textbook values</span><span class="grow"></span>
+          <div class="tabs"><span class="on">Ply properties</span><span>Test results · 3</span></div><span class="btn">✕</span>
+        </div>
+        <div style="display:flex;height:calc(100% - 100px)">
+          <div style="flex:1.05;border-right:1px solid var(--soft)">
+            <div class="sec">
+              <div class="eyebrow">Ply properties</div>
+              <table>
+                <tr><th>Property</th><th>Value</th><th>Unit</th><th>Source</th></tr>
+                <tr><td>Stiffness along fibre, E₁</td><td><div class="inp" style="justify-content:flex-end">135</div></td><td>GPa</td><td><span class="tag">Textbook</span></td></tr>
+                <tr><td>Stiffness across fibre, E₂</td><td><div class="inp" style="justify-content:flex-end">9</div></td><td>GPa</td><td><span class="tag">Textbook</span></td></tr>
+                <tr><td>Shear stiffness, G₁₂</td><td><div class="inp" style="justify-content:flex-end">5</div></td><td>GPa</td><td><span class="tag">Textbook</span></td></tr>
+                <tr><td>Fibre tension strength</td><td><div class="inp" style="justify-content:flex-end">1 650</div></td><td>MPa</td><td><span class="tag dark">Tested</span></td></tr>
+                <tr><td>Fibre compression strength</td><td><div class="inp" style="justify-content:flex-end">1 200</div></td><td>MPa</td><td><span class="tag">Textbook</span></td></tr>
+                <tr><td>Matrix tension strength</td><td><div class="inp" style="justify-content:flex-end">40</div></td><td>MPa</td><td><span class="tag">Textbook</span></td></tr>
+                <tr><td>Shear strength</td><td><div class="inp" style="justify-content:flex-end">70</div></td><td>MPa</td><td><span class="tag">Textbook</span></td></tr>
+              </table>
+              <div class="small muted" style="margin-top:8px">Properties are stated at 60% fibre volume and scaled to the volume fraction set in Design.</div>
+            </div>
+            <div class="sec">
+              <div class="eyebrow">Winding knock-down</div>
+              <div class="grid2">
+                <div class="f"><label>In use</label><div class="inp">0.75</div></div>
+                <div class="f"><label>Suggested from your tests</label><div class="inp">0.78 <i>mean of 3</i></div></div>
+              </div>
+              <span class="btn" style="margin-top:8px">Use 0.78</span>
+            </div>
+          </div>
+          <div style="flex:1">
+            <div class="sec">
+              <div class="eyebrow">Test results <span class="btn" style="padding:1px 7px;font-size:10px;letter-spacing:0;text-transform:none;font-weight:400">+ Record a test</span></div>
+              <table>
+                <tr><th>Part</th><th>Test</th><th>Predicted</th><th>Measured</th><th>Ratio</th></tr>
+                <tr><td>Tube 50 · 90/±45/90</td><td>Burst</td><td>52 bar</td><td>41 bar</td><td>0.79</td></tr>
+                <tr><td>Tube 50 · 90/±45/90</td><td>Burst</td><td>52 bar</td><td>39 bar</td><td>0.75</td></tr>
+                <tr><td>Taper · 90/±50/90</td><td>3-point bend</td><td>410 N·m</td><td>330 N·m</td><td>0.80</td></tr>
+              </table>
+            </div>
+            <div class="sec">
+              <div class="eyebrow">Predicted against measured</div>
+              <svg viewBox="0 0 440 190" style="width:100%;display:block">
+                <line x1="50" y1="160" x2="420" y2="160" stroke="#868c94"/><line x1="50" y1="160" x2="50" y2="14" stroke="#868c94"/>
+                <line x1="50" y1="160" x2="230" y2="14" stroke="#868c94" stroke-dasharray="4 4"/><text x="222" y="11" font-size="9.500" fill="#868c94" text-anchor="end">measured = predicted</text>
+                <line x1="50" y1="160" x2="300" y2="14" stroke="#1c1e21" stroke-width="1.5"/><text x="306" y="22" font-size="9.500">your parts: 0.78</text>
+                <circle cx="240" cy="50" r="5" fill="#1c1e21" stroke="#fff" stroke-width="2"/><circle cx="246" cy="60" r="5" fill="#1c1e21" stroke="#fff" stroke-width="2"/><circle cx="170" cy="92" r="5" fill="#1c1e21" stroke="#fff" stroke-width="2"/>
+                <text x="235" y="180" text-anchor="middle" font-size="9.500" fill="#868c94">Predicted (share of largest)</text>
+                <text x="16" y="90" font-size="9.500" fill="#868c94" transform="rotate(-90 16 90)" text-anchor="middle">Measured</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="sec" style="display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--soft)">
+          <span class="muted small" style="margin-right:auto">Saved as a material you can reuse across projects.</span><span class="btn">Cancel</span><span class="btn pri">Save material</span>
+        </div>
+      </div>
+      <span class="pin" style="left:140px;top:128px">1</span>
+      <span class="pin" style="left:140px;top:462px">2</span>
+      <span class="pin" style="left:642px;top:128px">3</span>
+      <span class="pin" style="left:642px;top:280px">4</span>
+    </div>
+    <ol class="notes">
+      <li><b>Every value shows its source.</b> Textbook or tested, per property, so it is always clear how much of an estimate rests on real data.</li>
+      <li><b>Knock-down from evidence.</b> Once tests are recorded, Filar suggests the knock-down your own parts imply.</li>
+      <li><b>Test log.</b> Each real test is stored with the prediction made for that exact part and layup.</li>
+      <li><b>Calibration chart.</b> Shows at a glance whether predictions run high or low for your process.</li>
+      <li class="q"><b>To decide:</b> does the test log belong in the first version, or is it a later step once the estimates themselves prove useful?</li>
+    </ol>
+  </div>
+</section>
+</body>
+</html>
