@@ -1,0 +1,126 @@
+# Builds the desktop app for macOS, Windows and Linux.
+#
+#   - Push a tag like v0.2.0  -> builds everything and attaches the installers
+#                                to a draft GitHub release for you to publish.
+#   - Run it by hand (Actions -> Release -> Run workflow) -> builds everything
+#                                and keeps the installers as workflow artifacts,
+#                                without creating a release.
+#
+# The installers are not signed with an Apple or Windows certificate yet; see
+# the "Releases" section of the README for what that means and how to add it.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  # Must match the wasm-bindgen crate pinned in crates/filar-wasm/Cargo.toml.
+  WASM_BINDGEN_VERSION: "0.2.130"
+
+jobs:
+  version:
+    name: Check version
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Tag must match the app version
+        if: github.ref_type == 'tag'
+        run: |
+          app="v$(jq -r .version app/src-tauri/tauri.conf.json)"
+          crate="v$(grep -m1 '^version' Cargo.toml | cut -d'"' -f2)"
+          echo "tag=$GITHUB_REF_NAME tauri.conf.json=$app Cargo.toml=$crate"
+          if [ "$GITHUB_REF_NAME" != "$app" ] || [ "$app" != "$crate" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match the app version ($app in tauri.conf.json, $crate in Cargo.toml). Bump both, commit, and tag that commit."
+            exit 1
+          fi
+
+  build:
+    name: ${{ matrix.name }}
+    needs: version
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS (Apple Silicon)
+            os: macos-latest
+            target: aarch64-apple-darwin
+          - name: macOS (Intel)
+            os: macos-latest
+            target: x86_64-apple-darwin
+          - name: Linux (x64)
+            os: ubuntu-22.04
+            target: ""
+          - name: Windows (x64)
+            os: windows-latest
+            target: ""
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          # wasm32 for the browser core that the front-end build compiles;
+          # the matrix target for cross-building the other macOS architecture.
+          targets: wasm32-unknown-unknown${{ matrix.target && format(',{0}', matrix.target) || '' }}
+
+      - name: Cache Rust builds
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target || runner.os }}
+
+      - name: Install wasm-bindgen
+        shell: bash
+        run: command -v wasm-bindgen || cargo install wasm-bindgen-cli --version "$WASM_BINDGEN_VERSION" --locked
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 12
+
+      - name: Install Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+
+      - name: Install front-end dependencies
+        working-directory: app
+        run: pnpm install --frozen-lockfile
+
+      - name: Build installers
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: app
+          args: ${{ matrix.target && format('--target {0}', matrix.target) || '' }}
+          # Always keep the installers with the run, so a manual run is useful.
+          uploadWorkflowArtifacts: true
+          # Only a tag creates a release; it stays a draft until you publish it.
+          tagName: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+          releaseName: ${{ github.ref_type == 'tag' && format('Filar {0}', github.ref_name) || '' }}
+          releaseBody: |
+            Download the installer for your system below.
+
+            These builds are not signed with an Apple or Windows certificate, so the first launch needs one extra step:
+            - **macOS:** open the app, then allow it under System Settings → Privacy & Security → Open Anyway.
+            - **Windows:** on the SmartScreen prompt choose More info → Run anyway.
+          releaseDraft: true
+          prerelease: false

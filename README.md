@@ -119,6 +119,44 @@ laminate analysis against closed-form results).
 Set `FILAR_TRACE=1` when launching the desktop app to log each call the UI
 makes into the Rust core.
 
+## Releases and CI
+
+Two GitHub Actions workflows live in `.github/workflows/`:
+
+- **CI** (`ci.yml`) runs on every pull request and every push to `main`:
+  the planner and CLI tests, then the full front-end build.
+- **Release** (`release.yml`) builds the desktop app on macOS, Windows and
+  Linux.
+
+To cut a release:
+
+1. Set the new version in `Cargo.toml` (`[workspace.package]`),
+   `app/src-tauri/tauri.conf.json` and `app/package.json`, and commit.
+2. Tag that commit and push the tag: `git tag v0.2.0 && git push origin v0.2.0`.
+3. When the run finishes, a **draft** release holds the installers. Review
+   it and publish.
+
+The tag must match the app version or the run stops before building. To
+build without releasing, run the workflow by hand (Actions → Release → Run
+workflow); the installers are kept as artifacts on that run.
+
+| System | What is built |
+| --- | --- |
+| macOS, Apple Silicon | `.dmg`, `.app` |
+| macOS, Intel | `.dmg`, `.app` |
+| Windows x64 | `.msi` and `.exe` installers |
+| Linux x64 | `.deb`, `.rpm`, `.AppImage` |
+
+**The installers are not code-signed.** The macOS app carries only an
+ad-hoc signature, so on first launch macOS blocks it until you allow it
+under System Settings → Privacy & Security → Open Anyway; Windows shows a
+SmartScreen prompt (More info → Run anyway). Removing those steps needs an
+Apple Developer ID certificate with notarisation, and a Windows
+code-signing certificate, supplied to the build step as repository
+secrets; see the Tauri signing guides for
+[macOS](https://v2.tauri.app/distribute/sign/macos/) and
+[Windows](https://v2.tauri.app/distribute/sign/windows/).
+
 ## Layout
 
 | Path | What |

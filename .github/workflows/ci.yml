@@ -1,0 +1,60 @@
+# Checks every change: planner tests, then the full front-end build
+# (WebAssembly core, type check, bundle).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Must match the wasm-bindgen crate pinned in crates/filar-wasm/Cargo.toml.
+  WASM_BINDGEN_VERSION: "0.2.130"
+
+jobs:
+  test:
+    name: Test and build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache Rust builds
+        uses: Swatinem/rust-cache@v2
+
+      - name: Planner and CLI tests
+        run: cargo test -p filar-core -p filar-cli
+
+      - name: Install wasm-bindgen
+        run: command -v wasm-bindgen || cargo install wasm-bindgen-cli --version "$WASM_BINDGEN_VERSION" --locked
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 12
+
+      - name: Install Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+
+      - name: Install front-end dependencies
+        working-directory: app
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the front end
+        working-directory: app
+        run: pnpm build

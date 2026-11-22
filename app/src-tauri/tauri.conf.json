@@ -19,7 +19,10 @@
         "minHeight": 720,
         "titleBarStyle": "Overlay",
         "hiddenTitle": true,
-        "trafficLightPosition": { "x": 30, "y": 33 },
+        "trafficLightPosition": {
+          "x": 30,
+          "y": 33
+        },
         "backgroundColor": "#08090b"
       }
     ],
@@ -32,7 +35,24 @@
     "targets": "all",
     "category": "Productivity",
     "shortDescription": "Filament winding design, simulation and G-code",
-    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
-    "fileAssociations": [{ "ext": ["filar"], "name": "Filar project", "role": "Editor" }]
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "fileAssociations": [
+      {
+        "ext": [
+          "filar"
+        ],
+        "name": "Filar project",
+        "role": "Editor"
+      }
+    ],
+    "macOS": {
+      "signingIdentity": "-"
+    }
   }
 }
