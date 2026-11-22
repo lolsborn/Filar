@@ -125,8 +125,8 @@ Two GitHub Actions workflows live in `.github/workflows/`:
 
 - **CI** (`ci.yml`) runs on every pull request and every push to `main`:
   the planner and CLI tests, then the full front-end build.
-- **Release** (`release.yml`) builds the desktop app on macOS, Windows and
-  Linux.
+- **Release** (`release.yml`) builds the desktop app on macOS (Apple
+  Silicon only; Intel Macs are not supported), Windows and Linux.
 
 To cut a release:
 
@@ -143,7 +143,6 @@ workflow); the installers are kept as artifacts on that run.
 | System | What is built |
 | --- | --- |
 | macOS, Apple Silicon | `.dmg`, `.app` |
-| macOS, Intel | `.dmg`, `.app` |
 | Windows x64 | `.msi` and `.exe` installers |
 | Linux x64 | `.deb`, `.rpm`, `.AppImage` |
 

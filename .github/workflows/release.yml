@@ -1,4 +1,4 @@
-# Builds the desktop app for macOS, Windows and Linux.
+# Builds the desktop app for macOS (Apple Silicon), Windows and Linux.
 #
 #   - Push a tag like v0.2.0  -> builds everything and attaches the installers
 #                                to a draft GitHub release for you to publish.
@@ -54,9 +54,6 @@ jobs:
           - name: macOS (Apple Silicon)
             os: macos-latest
             target: aarch64-apple-darwin
-          - name: macOS (Intel)
-            os: macos-latest
-            target: x86_64-apple-darwin
           - name: Linux (x64)
             os: ubuntu-22.04
             target: ""
@@ -75,8 +72,8 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          # wasm32 for the browser core that the front-end build compiles;
-          # the matrix target for cross-building the other macOS architecture.
+          # wasm32 for the browser core that the front-end build compiles,
+          # plus the matrix target where one is named.
           targets: wasm32-unknown-unknown${{ matrix.target && format(',{0}', matrix.target) || '' }}
 
       - name: Cache Rust builds
